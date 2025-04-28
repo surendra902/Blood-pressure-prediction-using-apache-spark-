@@ -1,0 +1,62 @@
+
+# Real-Time Blood Pressure Prediction System
+# Technologies: Apache Spark, Apache Kafka, MLlib, Python
+
+# Import necessary libraries
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col, from_json
+from pyspark.sql.types import StructType, StructField, FloatType
+from pyspark.ml.feature import VectorAssembler
+from pyspark.ml.regression import RandomForestRegressor
+from pyspark.ml.clustering import KMeans
+from pyspark.ml.evaluation import RegressionEvaluator
+
+# Define schema for streaming data
+schema = StructType([
+    StructField("PTT", FloatType(), True),
+    StructField("PIR", FloatType(), True),
+    StructField("HR", FloatType(), True),
+    StructField("SBP", FloatType(), True),
+    StructField("DBP", FloatType(), True)
+])
+
+# Start Spark session with Kafka support
+spark = SparkSession.builder     .appName("RealTimeBPMonitoring")     .config("spark.sql.streaming.checkpointLocation", "/tmp/checkpoints")     .getOrCreate()
+
+# Read real-time data from Kafka topic
+df = spark.readStream     .format("kafka")     .option("kafka.bootstrap.servers", "localhost:9092")     .option("subscribe", "bp-stream")     .option("startingOffsets", "latest")     .load()
+
+# Parse JSON value
+json_df = df.selectExpr("CAST(value AS STRING) as json")     .select(from_json("json", schema).alias("data"))     .select("data.*")
+
+# Feature engineering
+features = ["PTT", "PIR", "HR"]
+assembler = VectorAssembler(inputCols=features, outputCol="features")
+featured_df = assembler.transform(json_df).select("features", "SBP", "DBP")
+
+# Split data for model training (only once offline)
+# For real-time prediction, a pre-trained model should be loaded
+training_data, test_data = featured_df.randomSplit([0.8, 0.2])
+
+# Train a Random Forest model for SBP prediction
+rf_sbp = RandomForestRegressor(labelCol="SBP", featuresCol="features", numTrees=100)
+rf_model_sbp = rf_sbp.fit(training_data)
+
+# Train a Random Forest model for DBP prediction
+rf_dbp = RandomForestRegressor(labelCol="DBP", featuresCol="features", numTrees=100)
+rf_model_dbp = rf_dbp.fit(training_data)
+
+# Apply models to streaming data
+def predict_bp(micro_batch_df, batch_id):
+    if not micro_batch_df.rdd.isEmpty():
+        # Transform features
+        transformed = assembler.transform(micro_batch_df)
+        pred_sbp = rf_model_sbp.transform(transformed)
+        pred_dbp = rf_model_dbp.transform(transformed)
+        pred_df = pred_sbp.withColumnRenamed("prediction", "Predicted_SBP")                           .drop("SBP")                           .join(pred_dbp.select("prediction", "features").withColumnRenamed("prediction", "Predicted_DBP"), on="features")
+        pred_df.select("Predicted_SBP", "Predicted_DBP").show()
+
+# Start streaming with prediction logic
+query = json_df.writeStream     .foreachBatch(predict_bp)     .outputMode("update")     .start()
+
+query.awaitTermination()
