@@ -1,0 +1,58 @@
+# ==============================================================================
+# Blood Pressure Prediction — Configuration Template
+# ==============================================================================
+# Copy this file to config/config.ini and fill in your actual values.
+#   cp config/config.ini.template config/config.ini
+#
+# WARNING: Never commit config.ini to version control (it's in .gitignore).
+# ==============================================================================
+
+[database]
+# PostgreSQL connection settings for MIMIC-II database
+host = your_db_host
+port = 5432
+dbname = mimic2
+user = your_username
+password = your_password
+ssl_mode = prefer
+# JDBC URL (auto-constructed if left blank)
+jdbc_url = jdbc:postgresql://%(host)s:%(port)s/%(dbname)s
+
+[spark]
+# Apache Spark resource allocation
+app_name = MIMIC-II Blood Pressure Prediction
+executor_memory = 8g
+driver_memory = 4g
+max_result_size = 4g
+
+[model]
+# Random Forest hyperparameters
+num_trees = 100
+max_depth = 5
+seed = 42
+train_split = 0.8
+test_split = 0.2
+
+[data]
+# Data query limits and filtering
+query_limit = 100000
+# Systolic BP item IDs (comma-separated)
+systolic_items = 6,51,455,6701,220050,220179
+# Diastolic BP item IDs
+diastolic_items = 8364,8368,8440,8441,8555,220051,220180
+# Mean Arterial Pressure item IDs
+map_items = 52,456,6702,220052,220181
+# Heart Rate item IDs
+hr_items = 211,220045
+
+[kafka]
+# Kafka settings for streaming pipeline
+bootstrap_servers = localhost:9092
+topic = bp-stream
+checkpoint_location = /tmp/checkpoints
+
+[logging]
+# Log level: DEBUG, INFO, WARNING, ERROR, CRITICAL
+level = INFO
+# Log file path (leave blank for console-only)
+file =

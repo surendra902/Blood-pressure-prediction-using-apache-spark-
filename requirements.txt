@@ -1,0 +1,32 @@
+# ==============================================================================
+# Blood Pressure Prediction using Apache Spark — Dependencies
+# ==============================================================================
+
+# Core
+pyspark>=3.4.0,<4.0.0
+findspark>=1.4.2
+
+# Data Processing
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Machine Learning (non-Spark)
+scikit-learn>=1.3.0
+
+# Visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Database
+psycopg2-binary>=2.9.6
+SQLAlchemy>=2.0.0
+
+# Configuration
+python-dotenv>=1.0.0
+
+# Jupyter (optional — for notebooks)
+jupyter>=1.0.0
+ipykernel>=6.25.0
+
+# Kafka (optional — for streaming pipeline)
+kafka-python>=2.0.2

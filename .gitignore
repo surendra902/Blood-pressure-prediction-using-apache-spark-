@@ -1,0 +1,87 @@
+# ==========================
+# Python
+# ==========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+*.whl
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ==========================
+# Virtual Environments
+# ==========================
+venv/
+env/
+.venv/
+.env
+
+# ==========================
+# Jupyter Notebooks
+# ==========================
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# ==========================
+# Apache Spark
+# ==========================
+metastore_db/
+derby.log
+spark-warehouse/
+*.jar
+/lib/
+
+# ==========================
+# IDE & Editor
+# ==========================
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# ==========================
+# OS Files
+# ==========================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ==========================
+# Data & Results (large files)
+# ==========================
+data/*.csv
+data/*.parquet
+data/*.json
+results/*.csv
+results/*.parquet
+!data/.gitkeep
+!results/.gitkeep
+
+# ==========================
+# Config (sensitive)
+# ==========================
+config/config.ini
+*.env
+.env.*
+
+# ==========================
+# Logs
+# ==========================
+*.log
+logs/
+
+# ==========================
+# Checkpoints
+# ==========================
+/tmp/
+checkpoints/
